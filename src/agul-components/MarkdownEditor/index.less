@@ -1,0 +1,38 @@
+.agul-markdown-editor-container {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  .agul-markdown-editor-code-box {
+    width: 48%;
+    border: 1px solid #eee;
+    height: fit-content;
+    .ant-form-item {
+      margin-bottom: 0;
+    }
+    .code-editor-content {
+      .cm-editor {
+        border: none !important;
+      }
+      .cm-line::selection {
+        background-color: var(--antd-wave-shadow-color) !important;
+        color: #fff !important;
+      }
+      .cm-activeLine,
+      .cm-activeLineGutter {
+        margin-top: 0 !important;
+      }
+      .cm-content {
+        padding: 0 !important;
+      }
+      .cm-focused {
+        border: none !important;
+        outline: none !important;
+      }
+    }
+  }
+  .agul-markdown-editor-preview {
+    border: 1px solid #eee;
+    padding: 0 14px;
+    width: 50%;
+  }
+}

@@ -1,0 +1,20 @@
+stages:
+  - build
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_REGISTRY: iregistry.iauto.com
+  CONTAINER_TEST_IMAGE_TAG: $CI_COMMIT_REF_SLUG
+
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $DOCKER_REGISTRY
+
+build:
+  stage: build
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $DOCKER_REGISTRY
+  script:
+    - ls
+    - bash ./build.sh -v "$CI_COMMIT_REF_NAME" -t "$CI_COMMIT_REF_SLUG" -c "$CI_COMMIT_SHA"
+  only:
+    - /^dev\d.*$/

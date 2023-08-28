@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["ES2015", "ES2016", "ES2021.String", "DOM"],
+    "strict": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "baseUrl": "./",
+    "noImplicitThis": false,
+    "paths": {
+      "@@/*": [".dumi/tmp/*"],
+      "agul-ui": ["src"],
+      "agul-ui/*": ["src/*", "*"],
+      "@/*": ["src/*"]
+    }
+  },
+  "include": [".dumi/**/*", ".dumirc.ts", "src/**/*", "typings.d.ts"]
+}

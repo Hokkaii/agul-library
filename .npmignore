@@ -1,0 +1,16 @@
+.dumi
+docs
+src
+node_modules
+.dumirc.ts
+.editorconfig
+.eslintrc.js
+.fatherrc.ts
+.gitignore
+.prettierignore
+.prettierrc.js
+.browserslistrc
+.stylelintrc
+package-lock.json
+typings.d.ts
+tsconfig.json
