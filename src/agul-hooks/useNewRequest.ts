@@ -2,15 +2,13 @@
  * request 网络请求工具
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
-import { extend } from "umi-request";
-import _ from "lodash";
-import { useContext } from "react";
-import Message from "@/agul-methods/Message";
-import { AgulWrapperConfigContext } from "@/agul-utils/context";
-import { HttpMethodEnum, requestTypeEnum } from "@/agul-enums/http";
-import { signType } from "@/agul-utils/constant";
-import { RequestParamsProps } from "@/agul-types/request";
+import { HttpMethodEnum, requestTypeEnum } from '@/agul-enums/http';
+import Message from '@/agul-methods/Message';
+import { RequestParamsProps } from '@/agul-types/request';
+import { signType } from '@/agul-utils/constant';
+import { AgulWrapperConfigContext } from '@/agul-utils/context';
 import {
+  SHA,
   genHeader,
   getParamsToSortStr,
   getTimeStamp,
@@ -18,13 +16,15 @@ import {
   paramsToSortStr,
   postParamToShaStr,
   randomStr,
-  SHA,
   signTmp,
-} from "@/agul-utils/rules";
-import { getQuerys } from "@/agul-utils/utils";
+} from '@/agul-utils/rules';
+import { getQuerys } from '@/agul-utils/utils';
+import _ from 'lodash';
+import { useContext } from 'react';
+import { extend } from 'umi-request';
 
 const notice = (status: number, url: string, errorText: string) => {
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === 'development') {
     Message.error({
       title: `${status}:${url}`,
       subTitle: errorText,
@@ -46,7 +46,7 @@ export default ({ needSign, requestOptions }: RequestParamsProps = {}) => {
     if (response) {
       const { status, url } = response;
       let body: any;
-      let errorText: string = "";
+      let errorText: string = '';
       try {
         body = await response.json();
       } catch {
@@ -59,18 +59,20 @@ export default ({ needSign, requestOptions }: RequestParamsProps = {}) => {
         body?.error;
       notice(status, url, errorText);
     } else {
-      Message.error({ title: "服务器异常" });
+      Message.error({ title: '服务器异常' });
     }
     return Promise.reject(error);
   };
   // 全局配置,优先级低于入参
   const Wrapper = useContext(AgulWrapperConfigContext) as any;
-  const reqOptions = _.get(Wrapper, "reqOptions");
-  const needReqSign = _.get(Wrapper, "needReqSign");
+  const reqOptions = _.get(Wrapper, 'reqOptions');
+  const needReqSign = _.get(Wrapper, 'needReqSign');
   if (_.isNil(needSign)) {
     if (_.isBoolean(needReqSign)) {
+      // eslint-disable-next-line no-param-reassign
       needSign = needReqSign;
     } else {
+      // eslint-disable-next-line no-param-reassign
       needSign = true;
     }
   }
@@ -79,7 +81,7 @@ export default ({ needSign, requestOptions }: RequestParamsProps = {}) => {
    */
   const request = extend({
     errorHandler, // 默认错误处理
-    credentials: "include", // 默认请求是否带上cookie
+    credentials: 'include', // 默认请求是否带上cookie
     ...reqOptions,
     ...requestOptions,
   });
@@ -97,7 +99,7 @@ export default ({ needSign, requestOptions }: RequestParamsProps = {}) => {
       if (needSign) {
         const timestamp = getTimeStamp();
         const nonce = randomStr();
-        let paramsStr = "param={}";
+        let paramsStr = 'param={}';
         if (method === HttpMethodEnum.get) {
           paramsStr = getParamsToSortStr(params as URLSearchParams);
         }
@@ -116,7 +118,7 @@ export default ({ needSign, requestOptions }: RequestParamsProps = {}) => {
           timestamp,
           nonce,
           signType,
-          SHA(result, userid)
+          SHA(result, userid),
         );
       }
       options.headers = {
@@ -128,7 +130,7 @@ export default ({ needSign, requestOptions }: RequestParamsProps = {}) => {
         options: { ...options, interceptors: true },
       };
     },
-    { global: false }
+    { global: false },
   );
   /**
    * response拦截器
@@ -138,7 +140,7 @@ export default ({ needSign, requestOptions }: RequestParamsProps = {}) => {
     async (response: Response) => {
       return response;
     },
-    { global: false }
+    { global: false },
   );
   return request;
 };

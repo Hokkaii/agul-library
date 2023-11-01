@@ -1,18 +1,18 @@
-import { CSSProperties, useEffect, useState } from "react";
-import { Descriptions, Table } from "antd";
-import _ from "lodash";
-import useNewRequest from "@/agul-hooks/useNewRequest";
-import { isObject } from "@/agul-utils/utils";
-import GloablLoading from "@/agul-methods/Loading";
-import { DetailProps } from "@/agul-types/detail";
-import "./index.less";
+import useNewRequest from '@/agul-hooks/useNewRequest';
+import GloablLoading from '@/agul-methods/Loading';
+import { DetailProps } from '@/agul-types/detail';
+import { isObject } from '@/agul-utils/utils';
+import { Descriptions, Table } from 'antd';
+import _ from 'lodash';
+import { CSSProperties, useEffect, useState } from 'react';
+import './index.less';
 
 const DetailStyle: CSSProperties = {
-  whiteSpace: "pre-wrap",
+  whiteSpace: 'pre-wrap',
 };
 const { Item } = Descriptions;
 function Detail(props: DetailProps) {
-  const { dataSource = {}, url, path = "data", method, params } = props;
+  const { dataSource = {}, url, path = 'data', method, params } = props;
   const {
     names,
     enums,
@@ -22,14 +22,15 @@ function Detail(props: DetailProps) {
     extraButtons = [],
     getDetail,
   } = props;
+  const [currentData, setCurrentData] = useState<any>(dataSource || {});
   const RenderContent = (
     value: any,
     key: any,
     tableConfig: any,
-    enums: any
+    enums: any,
   ) => {
     if (_.isArray(value)) {
-      const childTable = _.get(tableConfig, [key, "childTable"]);
+      const childTable = _.get(tableConfig, [key, 'childTable']);
       const expandedRowRender = (record: any) => {
         return (
           <div style={{ paddingLeft: 70 }}>
@@ -44,19 +45,20 @@ function Detail(props: DetailProps) {
           </div>
         );
       };
+
       const expandable = {
         expandedRowRender,
-        defaultExpandedRowKeys: ["0"],
+        defaultExpandedRowKeys: ['0'],
       };
       if (childTable) {
         _.forEach(currentData, (item, index) => {
           item.key = index.toString();
         });
       }
-      const columns = _.get(tableConfig, [key, "columns"]);
+      const columns = _.get(tableConfig, [key, 'columns']);
       return _.isArray(columns) ? (
         <Table
-          scroll={{ x: "max-content", y: 400 }}
+          scroll={{ x: 'max-content', y: 400 }}
           dataSource={value}
           columns={columns}
           expandable={childTable ? expandable : undefined}
@@ -73,7 +75,7 @@ function Detail(props: DetailProps) {
                     item,
                     y,
                     objectConfig[key]?.tableConfig,
-                    objectConfig[key]?.enums
+                    objectConfig[key]?.enums,
                   )}
                 </Item>
               ) : null;
@@ -89,7 +91,6 @@ function Detail(props: DetailProps) {
       );
     }
   };
-  const [currentData, setCurrentData] = useState<any>(dataSource || {});
   useEffect(() => {
     if (_.isFunction(getDetail)) {
       getDetail(currentData);
@@ -103,13 +104,13 @@ function Detail(props: DetailProps) {
     }
     GloablLoading.show();
     const reqData = {
-      method: method || "get",
+      method: method || 'get',
     };
     const data = { ...params };
-    if (method === "post") {
-      _.set(reqData, "data", data);
+    if (method === 'post') {
+      _.set(reqData, 'data', data);
     } else {
-      _.set(reqData, "params", data);
+      _.set(reqData, 'params', data);
     }
     request(url, reqData)
       .then((res: any) => {

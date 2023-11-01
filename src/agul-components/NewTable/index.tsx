@@ -3,69 +3,69 @@
  * @desc: 此组件在antd-table基础上集成一些常用功能进行了二次封装，只需传入url、path等必要参数即可实现整个table业务。主要功能有：分页、排序、文本超出省略号、hover显示、checked（开发者在外部需要使用ref来获取checked数据）、定制化操作栏等。
  * @params data:固定数据,url:请求地址 columns:antd表格配置项  path:数据在服务器出参中的路径   pagePath:分页数据在服务器出参中的路径 rowSelect:是否可以check选择数据  params请求参数(get请求) operate:最右侧操作栏,needOrder:是否需要编号列,childTable:子表格字段名
  */
+import ModalDetail from '@/agul-components/ModalWithDetail';
+import ModalWithForm from '@/agul-components/ModalWithForm';
+import useHistory from '@/agul-hooks/useHistory';
+import useNewRequest from '@/agul-hooks/useNewRequest';
+import GloablLoading from '@/agul-methods/Loading';
+import Message from '@/agul-methods/Message';
 import {
-  FC,
-  CSSProperties,
-  useEffect,
-  useMemo,
-  useState,
-  useImperativeHandle,
-  forwardRef,
-  useRef,
-  useContext,
-  createElement,
-} from "react";
-import { createPortal } from "react-dom";
-import _ from "lodash";
-import useHistory from "@/agul-hooks/useHistory";
-import {
-  Table,
-  Checkbox,
-  Divider,
-  message,
-  Input,
-  Select,
-  Button,
-  Modal,
-  Space,
-  Row,
-  Col,
-  DatePicker,
-} from "antd";
-import Message from "@/agul-methods/Message";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  SearchOutlined,
-  PlusOutlined,
-  DownloadOutlined,
-} from "@ant-design/icons";
-import { useUpdateEffect } from "ahooks";
-import ModalWithForm from "@/agul-components/ModalWithForm";
-import ModalDetail from "@/agul-components/ModalWithDetail";
-import {
-  timeUtcOffect,
-  filterFormData,
-  isObject,
-  isDOM,
-  isValidElement,
-} from "@/agul-utils/utils";
-import useNewRequest from "@/agul-hooks/useNewRequest";
-import { WidgetsContext } from "@/agul-utils/context";
-import moment from "moment";
-import EmptyImg from "../../agul-assets/imgs/empty.png";
-import {
-  NewTableProps,
-  Params,
   AddButtonProps,
-  EditButtonProps,
-  ShowButtonProps,
   DeleteButtonProps,
   DownloadButtonProps,
-} from "@/agul-types/newTable";
-import GloablLoading from "@/agul-methods/Loading";
-import { RegOfUrl } from "@/agul-utils/constant";
-import "./index.less";
+  EditButtonProps,
+  NewTableProps,
+  Params,
+  ShowButtonProps,
+} from '@/agul-types/newTable';
+import { RegOfUrl } from '@/agul-utils/constant';
+import { WidgetsContext } from '@/agul-utils/context';
+import {
+  filterFormData,
+  isDOM,
+  isObject,
+  isValidElement,
+  timeUtcOffect,
+} from '@/agul-utils/utils';
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
+import { useUpdateEffect } from 'ahooks';
+import {
+  Button,
+  Checkbox,
+  Col,
+  DatePicker,
+  Divider,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Table,
+  message,
+} from 'antd';
+import _ from 'lodash';
+import moment from 'moment';
+import {
+  CSSProperties,
+  FC,
+  createElement,
+  forwardRef,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
+import EmptyImg from '../../agul-assets/imgs/empty.png';
+import './index.less';
 
 const PAGE_SIZE_OPTIONS = [8, 16, 40, 80];
 const showTotal = (total: number) => `共${total}条`;
@@ -74,25 +74,25 @@ const getTag = (val: any, enums: any, tagType: any): any => {
     return getTag(val, enums, tagType[val]);
   } else if (_.isString(tagType)) {
     switch (tagType) {
-      case "default":
+      case 'default':
         return _.isNil(val) ? null : (
           <div className="agul-newtable-defaulttag">
             {isObject(enums) ? enums[val] : val}
           </div>
         );
-      case "success":
+      case 'success':
         return _.isNil(val) ? null : (
           <div className="agul-newtable-successtag">
             {isObject(enums) ? enums[val] : val}
           </div>
         );
-      case "process":
+      case 'process':
         return _.isNil(val) ? null : (
           <div className="agul-newtable-processtag">
             {isObject(enums) ? enums[val] : val}
           </div>
         );
-      case "error":
+      case 'error':
         return _.isNil(val) ? null : (
           <div className="agul-newtable-errortag">
             {isObject(enums) ? enums[val] : val}
@@ -111,68 +111,68 @@ const getBtnText = (item: any) => {
     return item?.text;
   } else {
     switch (item?.type) {
-      case "add":
-        return "新增";
-      case "edit":
-        return "编辑";
-      case "detail":
-        return "详情";
-      case "delete":
-        return "删除";
-      case "download":
-        return "下载";
+      case 'add':
+        return '新增';
+      case 'edit':
+        return '编辑';
+      case 'detail':
+        return '详情';
+      case 'delete':
+        return '删除';
+      case 'download':
+        return '下载';
       default:
         return null;
     }
   }
 };
 const FooterStyle: CSSProperties = {
-  display: "flex",
-  justifyContent: "flex-end",
+  display: 'flex',
+  justifyContent: 'flex-end',
 };
 const DeleteMessageStyle: CSSProperties = {
   fontSize: 13,
-  color: "#575757",
-  textAlign: "center",
+  color: '#575757',
+  textAlign: 'center',
 };
 const DeleteFooterStyle: CSSProperties = {
-  margin: "30px auto 14px",
+  margin: '30px auto 14px',
   width: 200,
-  display: "flex",
-  justifyContent: "space-between",
+  display: 'flex',
+  justifyContent: 'space-between',
 };
 const evil = (data: any, strFn: string) => {
   const Fn = Function;
-  return new Fn("row", "return " + strFn)(data);
+  return new Fn('row', 'return ' + strFn)(data);
 };
 const DefaultMsgConfig = {
   open: false,
   onOk() {},
   onCancel() {},
-  msg: "",
+  msg: '',
 };
 const SortEnum: any = {
-  descend: "desc",
-  ascend: "asc",
+  descend: 'desc',
+  ascend: 'asc',
 };
 const CommonColorStyle: any = {
-  color: "#00b4e1",
+  color: '#00b4e1',
 };
 const DefaultPage: any = {
   showSizeChanger: true,
   showQuickJumper: true,
-  position: ["bottomRight"],
+  position: ['bottomRight'],
   showTotal,
   current: 1,
   pageSize: 8,
   total: 0,
   locale: {
-    jump_to: "前往",
+    jump_to: '前往',
   },
   pageSizeOptions: PAGE_SIZE_OPTIONS,
 };
 const DefaultModalConfig = {
-  title: "",
+  title: '',
   open: false,
   onSuccess: () => {},
   onCancel: () => {},
@@ -182,7 +182,7 @@ const DefaultModalConfig = {
   widgets: {},
 };
 const DefaultDetailConfig = {
-  title: "",
+  title: '',
   open: false,
   onSuccess: () => {},
   onCancel: () => {},
@@ -191,9 +191,9 @@ const DefaultDetailConfig = {
 const NewTable: FC<NewTableProps> = (props) => {
   const {
     url,
-    method = "get",
-    path = "data",
-    pagePath = "pageable",
+    method = 'get',
+    path = 'data',
+    pagePath = 'pageable',
     params,
     columns = [],
     rowSelect = false,
@@ -202,7 +202,7 @@ const NewTable: FC<NewTableProps> = (props) => {
     needOrder = false,
     childTable,
     height,
-    rowKey = "id",
+    rowKey = 'id',
     exportBtn,
     exportBox,
     colConfig,
@@ -219,15 +219,15 @@ const NewTable: FC<NewTableProps> = (props) => {
       ...item?.props,
     };
     switch (item?.type) {
-      case "add":
+      case 'add':
         return <PlusOutlined {...commonProps} />;
-      case "edit":
+      case 'edit':
         return <EditOutlined {...commonProps} />;
-      case "detail":
+      case 'detail':
         return <SearchOutlined {...commonProps} />;
-      case "delete":
+      case 'delete':
         return <DeleteOutlined {...commonProps} />;
-      case "download":
+      case 'download':
         return <DownloadOutlined {...commonProps} />;
       default:
         return null;
@@ -237,7 +237,7 @@ const NewTable: FC<NewTableProps> = (props) => {
   const [customFilterValues, setCustomFilterValues] = useState<any>({});
   // 请求额外参数
   const [currentParams, setCurrentParams] = useState<Params | undefined>(
-    params
+    params,
   );
   useEffect(() => {
     setCurrentParams({ ...params, ...customFilterValues });
@@ -258,16 +258,11 @@ const NewTable: FC<NewTableProps> = (props) => {
     ...DefaultPage,
     ...extraPagination,
   });
-  const reset = () => getData(DefaultPage, currentParams);
-  const update = () => getData(paginationRef.current, currentParams);
-  useEffect(() => {
-    paginationRef.current = pagination;
-  }, [pagination]);
   // 数据请求
-  const sortValue = useRef<string>("");
+  const sortValue = useRef<string>('');
   const getData = (page: any, paramsValue: any) => {
     if (!url) {
-      console.warn("请给NewTable组件正确的url属性");
+      console.warn('请给NewTable组件正确的url属性');
       return;
     }
     const { pageSize, current } = page;
@@ -278,10 +273,10 @@ const NewTable: FC<NewTableProps> = (props) => {
       pageNumber: current,
     };
     if (sortValue.current) {
-      _.set(currentParams, "sort", sortValue.current);
+      _.set(currentParams, 'sort', sortValue.current);
     }
     const params =
-      method === "get"
+      method === 'get'
         ? {
             params: currentParams,
           }
@@ -289,7 +284,7 @@ const NewTable: FC<NewTableProps> = (props) => {
             data: currentParams,
           };
     if (!url) {
-      console.error("缺失表格url");
+      console.error('缺失表格url');
       return;
     }
     GloablLoading.show();
@@ -304,16 +299,16 @@ const NewTable: FC<NewTableProps> = (props) => {
             _.map(_.get(res, path, []), (item, index) => ({
               ...item,
               $order: index + 1 + (current - 1) * pageSize,
-            }))
+            })),
           );
         } else {
           setCurrentData(_.get(res, path, []));
         }
         setPagination((state: any) => ({
           ...state,
-          pageSize: _.get(res, [pagePath, "pageSize"], 8),
-          current: _.get(res, [pagePath, "pageNumber"], 1),
-          total: _.get(res, [pagePath, "total"], 0),
+          pageSize: _.get(res, [pagePath, 'pageSize'], 8),
+          current: _.get(res, [pagePath, 'pageNumber'], 1),
+          total: _.get(res, [pagePath, 'total'], 0),
         }));
       })
       .catch((err) => {
@@ -323,6 +318,12 @@ const NewTable: FC<NewTableProps> = (props) => {
         GloablLoading.hide();
       });
   };
+  const reset = () => getData(DefaultPage, currentParams);
+  const update = () => getData(paginationRef.current, currentParams);
+  useEffect(() => {
+    paginationRef.current = pagination;
+  }, [pagination]);
+
   // params发生变更则立即刷新并重置页码以及排序信息
   useUpdateEffect(() => {
     getData(DefaultPage, currentParams);
@@ -331,13 +332,13 @@ const NewTable: FC<NewTableProps> = (props) => {
   // 分页逻辑
 
   const onChange = (page: any, filters: any, sorter: any) => {
-    let sort = "";
+    let sort = '';
     if (_.isArray(sorter)) {
       _.forEach(sorter, (item) => {
-        sort += `${_.get(item, "field")}:${SortEnum[_.get(item, "order")]};`;
+        sort += `${_.get(item, 'field')}:${SortEnum[_.get(item, 'order')]};`;
       });
-    } else if (_.get(sorter, "order")) {
-      sort = `${_.get(sorter, "field")}:${SortEnum[_.get(sorter, "order")]};`;
+    } else if (_.get(sorter, 'order')) {
+      sort = `${_.get(sorter, 'field')}:${SortEnum[_.get(sorter, 'order')]};`;
     }
     sortValue.current = sort;
     getData(page, currentParams);
@@ -377,13 +378,14 @@ const NewTable: FC<NewTableProps> = (props) => {
   const history = useHistory();
   const toAdd = (operate: AddButtonProps, row: any) => {
     if (!isObject(row)) {
+      // eslint-disable-next-line no-param-reassign
       row = {};
     }
     if (operate?.routerPath) {
       const url = operate?.field
         ? `${operate?.routerPath}?${operate?.field}=${_.get(
             row,
-            operate?.field
+            operate?.field,
           )}`
         : operate?.routerPath;
       history.push(url);
@@ -395,21 +397,21 @@ const NewTable: FC<NewTableProps> = (props) => {
         .then((res: any) => {
           if (!res?.errors || !res?.errors?.length) {
             if (!operate?.url) {
-              console.error("缺失新增url");
+              console.error('缺失新增url');
               return;
             }
             const url = operate?.field
               ? operate?.url.replaceAll(RegOfUrl, _.get(row, operate?.field))
               : operate?.url;
             const reqData = {
-              method: operate?.method || "post",
+              method: operate?.method || 'post',
               data: res,
             };
             if (!RegOfUrl.test(operate?.url) && operate?.field) {
               _.set(
                 reqData,
                 `data.${operate?.field}`,
-                _.get(row, operate?.field)
+                _.get(row, operate?.field),
               );
             }
             GloablLoading.show();
@@ -417,9 +419,10 @@ const NewTable: FC<NewTableProps> = (props) => {
               .then(() => {
                 GloablLoading.hide();
                 Message.success({
-                  title: "操作成功",
+                  title: '操作成功',
                 });
                 setModalConfig(DefaultModalConfig);
+                // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                 operate.reset ? reset() : update();
               })
               .catch((err) => {
@@ -428,6 +431,7 @@ const NewTable: FC<NewTableProps> = (props) => {
               });
           }
         })
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .catch((err: any) => {});
     };
     setModalConfig({
@@ -444,13 +448,14 @@ const NewTable: FC<NewTableProps> = (props) => {
   };
   const toEdit = (operate: EditButtonProps, row: any) => {
     if (!isObject(row)) {
+      // eslint-disable-next-line no-param-reassign
       row = {};
     }
     if (operate?.routerPath) {
       const url = operate?.field
         ? `${operate?.routerPath}?${operate?.field}=${_.get(
             row,
-            operate?.field
+            operate?.field,
           )}`
         : operate?.routerPath;
       history.push(url);
@@ -462,21 +467,21 @@ const NewTable: FC<NewTableProps> = (props) => {
         .then((res: any) => {
           if (!res?.errors || !res?.errors?.length) {
             if (!operate?.url) {
-              console.error("缺失编辑url");
+              console.error('缺失编辑url');
               return;
             }
             const currentUrl = operate?.field
               ? operate?.url.replaceAll(RegOfUrl, _.get(row, operate?.field))
               : operate?.url;
             const reqData = {
-              method: operate?.method || "put",
+              method: operate?.method || 'put',
               data: res,
             };
             if (!RegOfUrl.test(operate?.url) && operate?.field) {
               _.set(
                 reqData,
                 `data.${operate?.field}`,
-                _.get(row, operate?.field)
+                _.get(row, operate?.field),
               );
             }
             GloablLoading.show();
@@ -484,9 +489,10 @@ const NewTable: FC<NewTableProps> = (props) => {
               .then(() => {
                 GloablLoading.hide();
                 Message.success({
-                  title: "操作成功",
+                  title: '操作成功',
                 });
                 setModalConfig(DefaultModalConfig);
+                // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                 operate.reset ? reset() : update();
               })
               .catch((err) => {
@@ -495,6 +501,7 @@ const NewTable: FC<NewTableProps> = (props) => {
               });
           }
         })
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .catch((err: any) => {});
     };
     if (operate?.detailUrl) {
@@ -502,14 +509,14 @@ const NewTable: FC<NewTableProps> = (props) => {
         ? operate?.detailUrl!.replaceAll(RegOfUrl, _.get(row, operate?.field))
         : operate?.detailUrl;
       const reqData = {
-        method: operate?.detailMethod || "get",
+        method: operate?.detailMethod || 'get',
       };
       if (
-        operate?.detailMethod === "post" &&
+        operate?.detailMethod === 'post' &&
         !RegOfUrl.test(operate?.detailUrl) &&
         operate?.field
       ) {
-        _.set(reqData, "data", {
+        _.set(reqData, 'data', {
           [operate?.field]: _.get(row, operate?.field),
         });
       }
@@ -517,7 +524,7 @@ const NewTable: FC<NewTableProps> = (props) => {
       request(detailUrl as string, reqData)
         .then((res) => {
           GloablLoading.hide();
-          let data = _.get(res, operate?.detailPath || "data");
+          let data = _.get(res, operate?.detailPath || 'data');
           if (!data) {
             data = {};
           }
@@ -555,13 +562,14 @@ const NewTable: FC<NewTableProps> = (props) => {
   };
   const toShow = (operate: ShowButtonProps, row: any) => {
     if (!isObject(row)) {
+      // eslint-disable-next-line no-param-reassign
       row = {};
     }
     if (operate?.routerPath) {
       const url = operate?.field
         ? `${operate?.routerPath}?${operate?.field}=${_.get(
             row,
-            operate?.field
+            operate?.field,
           )}`
         : operate?.routerPath;
       history.push(url);
@@ -572,14 +580,14 @@ const NewTable: FC<NewTableProps> = (props) => {
         ? operate?.url!.replaceAll(RegOfUrl, _.get(row, operate?.field))
         : operate?.url;
       const reqData = {
-        method: operate?.method || "get",
+        method: operate?.method || 'get',
       };
       if (
-        operate?.method === "post" &&
+        operate?.method === 'post' &&
         !RegOfUrl.test(operate?.url) &&
         operate?.field
       ) {
-        _.set(reqData, "data", {
+        _.set(reqData, 'data', {
           [operate?.field]: _.get(row, operate?.field),
         });
       }
@@ -589,7 +597,7 @@ const NewTable: FC<NewTableProps> = (props) => {
           GloablLoading.hide();
           const detail = {
             ...operate.detailConfig,
-            dataSource: _.get(res, operate?.path || "data"),
+            dataSource: _.get(res, operate?.path || 'data'),
           };
           delete detail.url;
           setDetailConfig({
@@ -622,6 +630,7 @@ const NewTable: FC<NewTableProps> = (props) => {
   const [msgModalConfig, setMsgModalConfig] = useState<any>(DefaultMsgConfig);
   const toDelete = (operate: DeleteButtonProps, row: any) => {
     if (!isObject(row)) {
+      // eslint-disable-next-line no-param-reassign
       row = {};
     }
     setMsgModalConfig({
@@ -629,22 +638,22 @@ const NewTable: FC<NewTableProps> = (props) => {
       open: true,
       onOk() {
         if (!operate?.url) {
-          console.error("缺失删除url");
+          console.error('缺失删除url');
           return;
         }
         const deleteUrl = operate?.url.replaceAll(
           RegOfUrl,
-          _.get(row, operate?.field)
+          _.get(row, operate?.field),
         );
         const reqData = {
-          method: operate?.method || "delete",
+          method: operate?.method || 'delete',
         };
         if (
-          (["put", "post"] as any).includes(operate?.method) &&
+          (['put', 'post'] as any).includes(operate?.method) &&
           !RegOfUrl.test(operate?.url) &&
           operate?.field
         ) {
-          _.set(reqData, "data", {
+          _.set(reqData, 'data', {
             [operate?.field]: _.get(row, operate?.field),
           });
         }
@@ -653,9 +662,10 @@ const NewTable: FC<NewTableProps> = (props) => {
           .then(() => {
             GloablLoading.hide();
             Message.success({
-              title: "操作成功",
+              title: '操作成功',
             });
             setMsgModalConfig(DefaultMsgConfig);
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             operate.reset ? reset() : update();
           })
           .catch((err) => {
@@ -668,13 +678,14 @@ const NewTable: FC<NewTableProps> = (props) => {
   };
   const toDownload = (operate: DownloadButtonProps, row: any) => {
     if (!isObject(row)) {
+      // eslint-disable-next-line no-param-reassign
       row = {};
     }
     let downloadUrl;
     const options: any = {
       getResponse: true,
-      responseType: "blob",
-      prefix: "",
+      responseType: 'blob',
+      prefix: '',
       headers: {
         ...operate?.headers,
       },
@@ -684,10 +695,10 @@ const NewTable: FC<NewTableProps> = (props) => {
         if (RegOfUrl.test(operate?.url)) {
           downloadUrl = operate?.url.replaceAll(
             RegOfUrl,
-            _.get(row, operate?.field)
+            _.get(row, operate?.field),
           );
-        } else if (operate?.method === "post") {
-          options.method = "post";
+        } else if (operate?.method === 'post') {
+          options.method = 'post';
           options.data = {
             [operate?.field]: _.get(row, operate?.field),
           };
@@ -699,8 +710,8 @@ const NewTable: FC<NewTableProps> = (props) => {
       downloadUrl = _.get(row, operate?.field);
     }
     if (!downloadUrl) {
-      console.error("缺失下载地址");
-      message.warn("该资源地址无效!");
+      console.error('缺失下载地址');
+      message.warn('该资源地址无效!');
       return;
     }
     let download: string;
@@ -709,31 +720,31 @@ const NewTable: FC<NewTableProps> = (props) => {
       .then((res) => {
         GloablLoading.hide();
         const { data, response } = res;
-        const disposition = response.headers.get("Content-Disposition");
+        const disposition = response.headers.get('Content-Disposition');
         let str =
-          typeof disposition === "string"
-            ? disposition.split(";")[1]
+          typeof disposition === 'string'
+            ? disposition.split(';')[1]
             : row?.filename;
-        let filename = "";
+        let filename = '';
         if (str) {
-          filename = !str.split("fileName=")[1]
-            ? str.split("filename=")[1]
-            : str.split("fileName=")[1];
+          filename = !str.split('fileName=')[1]
+            ? str.split('filename=')[1]
+            : str.split('fileName=')[1];
         }
         filename =
           filename || row?.filename || row?.fileName || operate?.filename;
         download = decodeURIComponent(filename);
         if (!download) {
           Message.error({
-            title: "下载错误，请联系开发人员！",
+            title: '下载错误，请联系开发人员！',
           });
           return;
         }
-        const a = document.createElement("a");
+        const a = document.createElement('a');
         const url = window.URL.createObjectURL(data);
         a.href = url;
         a.download = download;
-        a.target = "_blank";
+        a.target = '_blank';
         a.click();
         window.URL.revokeObjectURL(url);
       })
@@ -745,19 +756,19 @@ const NewTable: FC<NewTableProps> = (props) => {
   // operate逻辑
   const toOperate = (item: any, row: any) => {
     switch (item?.type) {
-      case "add":
+      case 'add':
         toAdd(item, row);
         return;
-      case "edit":
+      case 'edit':
         toEdit(item, row);
         return;
-      case "detail":
+      case 'detail':
         toShow(item, row);
         return;
-      case "delete":
+      case 'delete':
         toDelete(item, row);
         return;
-      case "download":
+      case 'download':
         toDownload(item, row);
         return;
       default:
@@ -777,7 +788,7 @@ const NewTable: FC<NewTableProps> = (props) => {
               : (val: any) =>
                   !_.isNil(val) ? timeUtcOffect(val).format(format) : null;
           }
-        }
+        },
       );
       return (
         <div className="agul-newtbale-childtable-box">
@@ -796,7 +807,7 @@ const NewTable: FC<NewTableProps> = (props) => {
     };
     return {
       expandedRowRender,
-      defaultExpandedRowKeys: ["0"],
+      defaultExpandedRowKeys: ['0'],
     };
   }, [childTable]);
   if (childTable) {
@@ -805,6 +816,7 @@ const NewTable: FC<NewTableProps> = (props) => {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   useImperativeHandle(forwordRef, () => exportProps, [currentData, forwordRef]);
   // 自定义列选择框确认回调
   const fitersOnchange = () => {
@@ -815,7 +827,7 @@ const NewTable: FC<NewTableProps> = (props) => {
     const { type, field, treeData, props } = filterProps;
     const currentField = field || key;
     switch (type) {
-      case "input":
+      case 'input':
         return ({ close }: any) => (
           <div className="agul-newtable-filter-input-box">
             <Input
@@ -843,7 +855,7 @@ const NewTable: FC<NewTableProps> = (props) => {
             </Button>
           </div>
         );
-      case "select":
+      case 'select':
         return ({ close }: any) => (
           <div className="agul-newtable-filter-select-box">
             <Select
@@ -872,7 +884,7 @@ const NewTable: FC<NewTableProps> = (props) => {
             </Button>
           </div>
         );
-      case "checkbox":
+      case 'checkbox':
         return ({ close }: any) => (
           <div className="agul-newtable-filter-checkbox-box">
             <Checkbox.Group
@@ -900,22 +912,23 @@ const NewTable: FC<NewTableProps> = (props) => {
             </Button>
           </div>
         );
-      case "dateRange":
+      case 'dateRange':
+        // eslint-disable-next-line no-case-declarations
         const currentValue =
           customFilterValues[
-            _.get(field, [0]) ? _.get(field, [0]) : "startTime"
+            _.get(field, [0]) ? _.get(field, [0]) : 'startTime'
           ] &&
-          customFilterValues[_.get(field, [1]) ? _.get(field, [1]) : "endTime"]
+          customFilterValues[_.get(field, [1]) ? _.get(field, [1]) : 'endTime']
             ? [
                 moment(
                   customFilterValues[
-                    _.get(field, [0]) ? _.get(field, [0]) : "startTime"
-                  ]
+                    _.get(field, [0]) ? _.get(field, [0]) : 'startTime'
+                  ],
                 ),
                 moment(
                   customFilterValues[
-                    _.get(field, [1]) ? _.get(field, [1]) : "endTime"
-                  ]
+                    _.get(field, [1]) ? _.get(field, [1]) : 'endTime'
+                  ],
                 ),
               ]
             : [];
@@ -929,23 +942,20 @@ const NewTable: FC<NewTableProps> = (props) => {
                 if (_.isEmpty(_.pickBy(dateStrings))) {
                   setCustomFilterValues((state: any) => {
                     delete state[
-                      _.get(field, [0]) ? _.get(field, [0]) : "startTime"
+                      _.get(field, [0]) ? _.get(field, [0]) : 'startTime'
                     ];
                     delete state[
-                      _.get(field, [1]) ? _.get(field, [1]) : "endTime"
+                      _.get(field, [1]) ? _.get(field, [1]) : 'endTime'
                     ];
                     return { ...state };
                   });
                 } else {
                   setCustomFilterValues((state: any) => ({
                     ...state,
-                    [_.get(field, [0])
-                      ? _.get(field, [0])
-                      : "startTime"]: moment(dateStrings[0])
-                      .utcOffset(8)
-                      .format(),
-                    [_.get(field, [1]) ? _.get(field, [1]) : "endTime"]: moment(
-                      dateStrings[1]
+                    [_.get(field, [0]) ? _.get(field, [0]) : 'startTime']:
+                      moment(dateStrings[0]).utcOffset(8).format(),
+                    [_.get(field, [1]) ? _.get(field, [1]) : 'endTime']: moment(
+                      dateStrings[1],
                     )
                       .utcOffset(8)
                       .format(),
@@ -1002,11 +1012,11 @@ const NewTable: FC<NewTableProps> = (props) => {
   const [rowSelectItems, setRowSelectItems] = useState<any>({
     old: _.map(
       _.isArray(columns) ? [...columns] : [],
-      (item) => item.dataIndex || item.key
+      (item) => item.dataIndex || item.key,
     ),
     new: _.map(
       _.isArray(columns) ? [...columns] : [],
-      (item) => item.dataIndex || item.key
+      (item) => item.dataIndex || item.key,
     ),
   });
   const onRowConfirm = () => {
@@ -1020,22 +1030,22 @@ const NewTable: FC<NewTableProps> = (props) => {
   const extraColumnKeys = useMemo(() => {
     return _.map(
       _.filter(colConfig || [], (item) =>
-        _.includes(rowSelectItems.old || [], item?.dataIndex || item?.key)
+        _.includes(rowSelectItems.old || [], item?.dataIndex || item?.key),
       ),
-      (item) => item.dataIndex || item.key
+      (item) => item.dataIndex || item.key,
     );
   }, [rowSelectItems.old]);
   const totalColumns = colConfig
     ? _.filter(_.isArray(columns) ? [...columns] : [], (item) =>
-        _.includes(extraColumnKeys, item?.dataIndex || item?.key)
+        _.includes(extraColumnKeys, item?.dataIndex || item?.key),
       )
     : _.isArray(columns)
     ? [...columns]
     : [];
-  if (needOrder && !_.some(totalColumns, { dataIndex: "$order" })) {
+  if (needOrder && !_.some(totalColumns, { dataIndex: '$order' })) {
     totalColumns.unshift({
-      title: "编号",
-      dataIndex: "$order",
+      title: '编号',
+      dataIndex: '$order',
     });
   }
 
@@ -1047,7 +1057,7 @@ const NewTable: FC<NewTableProps> = (props) => {
     reset,
     update,
   };
-  if (rowSelect && !_.some(totalColumns, { dataIndex: "$rowSelect" })) {
+  if (rowSelect && !_.some(totalColumns, { dataIndex: '$rowSelect' })) {
     totalColumns.unshift({
       title: (
         <Checkbox
@@ -1056,9 +1066,9 @@ const NewTable: FC<NewTableProps> = (props) => {
           indeterminate={!_.isEmpty(checkedData) && !allChecked}
         />
       ),
-      width: _.get(rowSelect, "width", 100),
-      fixed: "left",
-      dataIndex: "$rowSelect",
+      width: _.get(rowSelect, 'width', 100),
+      fixed: 'left',
+      dataIndex: '$rowSelect',
       render: (__: any, row: any, index: number) => {
         return (
           <Checkbox
@@ -1072,11 +1082,11 @@ const NewTable: FC<NewTableProps> = (props) => {
     });
   }
   const Widgets = useContext(WidgetsContext) as any;
-  if (operate && !_.some(totalColumns, { dataIndex: "$operate" })) {
+  if (operate && !_.some(totalColumns, { dataIndex: '$operate' })) {
     totalColumns.push({
-      title: "操作",
-      dataIndex: "$operate",
-      fixed: "right",
+      title: '操作',
+      dataIndex: '$operate',
+      fixed: 'right',
       // width:
       //   operate?.mode === "icon"
       //     ? _.get(operate, "buttons.length", 0) * 20
@@ -1093,7 +1103,7 @@ const NewTable: FC<NewTableProps> = (props) => {
 
       render: (__: any, row: any) => {
         const currentButtons = _.filter(operate?.buttons || [], (item) => {
-          if (!operate.conditionStyle || operate.conditionStyle === "gap") {
+          if (!operate.conditionStyle || operate.conditionStyle === 'gap') {
             return !item?.condition || evil(row, item.condition);
           }
           return item.condition;
@@ -1110,8 +1120,8 @@ const NewTable: FC<NewTableProps> = (props) => {
                     >
                       -
                     </a>
-                  ) : item?.type === "custom" ? (
-                    typeof item?.widget === "string" ? (
+                  ) : item?.type === 'custom' ? (
+                    typeof item?.widget === 'string' ? (
                       Widgets && Widgets[item?.widget] ? (
                         createElement(Widgets[item?.widget], {
                           ...exportProps,
@@ -1120,7 +1130,7 @@ const NewTable: FC<NewTableProps> = (props) => {
                       ) : (
                         item?.widget
                       )
-                    ) : typeof item?.widget === "function" ? (
+                    ) : typeof item?.widget === 'function' ? (
                       createElement(item?.widget, {
                         ...exportProps,
                         row,
@@ -1130,10 +1140,10 @@ const NewTable: FC<NewTableProps> = (props) => {
                       _.isNumber(item?.widget) ? (
                       item?.widget
                     ) : null
-                  ) : operate?.mode === "icon" ? (
+                  ) : operate?.mode === 'icon' ? (
                     getCurrentIcon(
                       item,
-                      _.debounce(() => toOperate(item, row), 200)
+                      _.debounce(() => toOperate(item, row), 200),
                     )
                   ) : (
                     <a
@@ -1145,12 +1155,12 @@ const NewTable: FC<NewTableProps> = (props) => {
                       {getBtnText(item)}
                     </a>
                   )}
-                  {index === _.get(currentButtons, "length", 0) - 1 ? null : (
+                  {index === _.get(currentButtons, 'length', 0) - 1 ? null : (
                     <Divider
                       type="vertical"
                       className={
                         item?.condition && !evil(row, item.condition)
-                          ? "agul-ui-newtable-operate-disabled-divider"
+                          ? 'agul-ui-newtable-operate-disabled-divider'
                           : undefined
                       }
                     />
@@ -1168,7 +1178,7 @@ const NewTable: FC<NewTableProps> = (props) => {
     if (otherFilters) {
       item.filterDropdown = getColumnsFilterDropdown(
         otherFilters,
-        item?.dataIndex || item?.key
+        item?.dataIndex || item?.key,
       );
     }
     if (format) {
@@ -1200,23 +1210,23 @@ const NewTable: FC<NewTableProps> = (props) => {
   });
   const toExport = () => {
     if (!exportBtn?.url) {
-      console.error("缺失导出url");
+      console.error('缺失导出url');
       return;
     }
     const options: any = {
       getResponse: true,
-      responseType: "blob",
-      prefix: "",
+      responseType: 'blob',
+      prefix: '',
       headers: {
         ...exportBtn?.headers,
       },
     };
     let params = isObject(exportBtn?.params) ? exportBtn?.params : {};
     params = { ...params, ...currentParams };
-    if (exportBtn?.method === "get" || !exportBtn?.method) {
+    if (exportBtn?.method === 'get' || !exportBtn?.method) {
       options.params = params;
     } else {
-      options.method = "post";
+      options.method = 'post';
       options.data = params;
     }
     let download: any;
@@ -1225,30 +1235,30 @@ const NewTable: FC<NewTableProps> = (props) => {
       .then((res) => {
         GloablLoading.hide();
         const { data, response } = res;
-        const disposition = response.headers.get("Content-Disposition");
+        const disposition = response.headers.get('Content-Disposition');
         let str =
-          typeof disposition === "string"
-            ? disposition.split(";")[1]
+          typeof disposition === 'string'
+            ? disposition.split(';')[1]
             : exportBtn?.filename;
-        let filename = "";
+        let filename = '';
         if (str) {
-          filename = !str.split("fileName=")[1]
-            ? str.split("filename=")[1]
-            : str.split("fileName=")[1];
+          filename = !str.split('fileName=')[1]
+            ? str.split('filename=')[1]
+            : str.split('fileName=')[1];
         }
         filename = filename || exportBtn?.filename || exportBtn?.fileName;
         download = decodeURIComponent(filename);
         if (!download) {
           Message.error({
-            title: "下载错误，请联系开发人员！",
+            title: '下载错误，请联系开发人员！',
           });
           return;
         }
-        const a = document.createElement("a");
+        const a = document.createElement('a');
         const url = window.URL.createObjectURL(data);
         a.href = url;
         a.download = download;
-        a.target = "_blank";
+        a.target = '_blank';
         a.click();
         window.URL.revokeObjectURL(url);
       })
@@ -1272,7 +1282,7 @@ const NewTable: FC<NewTableProps> = (props) => {
         >
           配置列
         </Button>,
-        colConfigBox as HTMLElement
+        colConfigBox as HTMLElement,
       );
     } else if (
       _.isString(colConfigBox) &&
@@ -1288,7 +1298,7 @@ const NewTable: FC<NewTableProps> = (props) => {
         >
           配置列
         </Button>,
-        document.getElementById(colConfigBox) as HTMLElement
+        document.getElementById(colConfigBox) as HTMLElement,
       );
     } else {
       return boxRef.current
@@ -1305,7 +1315,7 @@ const NewTable: FC<NewTableProps> = (props) => {
             >
               配置列
             </Button>,
-            boxRef.current
+            boxRef.current,
           )
         : null;
     }
@@ -1320,9 +1330,9 @@ const NewTable: FC<NewTableProps> = (props) => {
           onClick={() => toExport()}
           className="agul_newtable_export_btn"
         >
-          {exportBtn?.text || "导出"}
+          {exportBtn?.text || '导出'}
         </Button>,
-        exportBox as HTMLElement
+        exportBox as HTMLElement,
       );
     } else if (_.isString(exportBox) && !!document.getElementById(exportBox)) {
       createPortal(
@@ -1331,9 +1341,9 @@ const NewTable: FC<NewTableProps> = (props) => {
           onClick={() => toExport()}
           className="agul_newtable_export_btn"
         >
-          {exportBtn?.text || "导出"}
+          {exportBtn?.text || '导出'}
         </Button>,
-        document.getElementById(exportBox) as HTMLElement
+        document.getElementById(exportBox) as HTMLElement,
       );
     } else {
       return boxRef.current
@@ -1343,9 +1353,9 @@ const NewTable: FC<NewTableProps> = (props) => {
               onClick={() => toExport()}
               className="agul_newtable_export_btn"
             >
-              {exportBtn?.text || "导出"}
+              {exportBtn?.text || '导出'}
             </Button>,
-            boxRef.current
+            boxRef.current,
           )
         : null;
     }
@@ -1397,7 +1407,7 @@ const NewTable: FC<NewTableProps> = (props) => {
       {RenderExportBox()}
       {RendercolConfigBox()}
       <Table
-        scroll={{ x: "max-content", y: height }}
+        scroll={{ x: 'max-content', y: height }}
         dataSource={currentData}
         columns={currentColumns}
         pagination={url ? (pagination as any) : false}

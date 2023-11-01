@@ -23,10 +23,10 @@
    *
    */
 
-import Cookie from "js-cookie";
-import crypto from "crypto-js";
-import { decode } from "jsonwebtoken";
-import { useridCookie, xsrfHeaderName } from "./constant";
+import crypto from 'crypto-js';
+import Cookie from 'js-cookie';
+import { decode } from 'jsonwebtoken';
+import { useridCookie, xsrfHeaderName } from './constant';
 const HmacSHA256 = crypto.HmacSHA256;
 /**
  * @description 获取20位随机字符串 nonce
@@ -35,78 +35,78 @@ const HmacSHA256 = crypto.HmacSHA256;
  */
 export const randomStr = () => {
   const array = [
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z",
-    "a",
-    "b",
-    "c",
-    "d",
-    "e",
-    "f",
-    "g",
-    "h",
-    "i",
-    "j",
-    "k",
-    "l",
-    "m",
-    "n",
-    "o",
-    "p",
-    "q",
-    "r",
-    "s",
-    "t",
-    "u",
-    "v",
-    "w",
-    "x",
-    "y",
-    "z",
+    '0',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'H',
+    'I',
+    'J',
+    'K',
+    'L',
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z',
+    'a',
+    'b',
+    'c',
+    'd',
+    'e',
+    'f',
+    'g',
+    'h',
+    'i',
+    'j',
+    'k',
+    'l',
+    'm',
+    'n',
+    'o',
+    'p',
+    'q',
+    'r',
+    's',
+    't',
+    'u',
+    'v',
+    'w',
+    'x',
+    'y',
+    'z',
   ];
   let arrlength = array.length;
-  let str = "";
+  let str = '';
   let count = 0;
   let item;
   while (arrlength) {
     //保证均匀分布
     item = Math.floor(Math.random() * arrlength--);
     str += array.splice(item, 1)[0];
-    if (count == 19) {
+    if (count === 19) {
       break;
     }
     count++;
@@ -137,12 +137,12 @@ export const getUserIdByJwtToken = () => {
   const token = sessionStorage.getItem(xsrfHeaderName);
 
   if (!token) {
-    return "null";
+    return 'null';
   }
 
   const userid = (decode(token) as any)?.[useridCookie];
   if (!userid) {
-    return "null";
+    return 'null';
   }
   return userid;
 };
@@ -155,7 +155,7 @@ export const getUserIdByJwtToken = () => {
  */
 export const getParamsToSortStr = (params: URLSearchParams) => {
   if (!params) {
-    return "param={}";
+    return 'param={}';
   }
   const obj: any = {};
 
@@ -169,10 +169,10 @@ export const getParamsToSortStr = (params: URLSearchParams) => {
   const tmp = Object.keys(obj)
     .sort()
     .map((value) => {
-      return value + "=" + obj[value];
+      return value + '=' + obj[value];
     });
-  const result = "param={" + tmp.join("&") + "}";
-  console.log("param:", result);
+  const result = 'param={' + tmp.join('&') + '}';
+  console.log('param:', result);
   return result;
 };
 
@@ -184,7 +184,7 @@ export const getParamsToSortStr = (params: URLSearchParams) => {
  */
 export const paramsToSortStr = (params?: URLSearchParams | FormData) => {
   if (!params) {
-    return "param={}";
+    return 'param={}';
   }
   const obj: any = {};
 
@@ -205,7 +205,7 @@ export const paramsToSortStr = (params?: URLSearchParams | FormData) => {
   for (const key of (params as any).keys()) {
     const item = params.get(key);
     // 因为是formdata 所以除了文件类型以外都是string
-    if (typeof item === "string") {
+    if (typeof item === 'string') {
       obj[key] = item;
     }
   }
@@ -213,10 +213,10 @@ export const paramsToSortStr = (params?: URLSearchParams | FormData) => {
   const tmp = Object.keys(obj)
     .sort()
     .map((value) => {
-      return value + "=" + obj[value];
+      return value + '=' + obj[value];
     });
-  const result = "param={" + tmp.join("&") + "}";
-  console.log("param:", result);
+  const result = 'param={' + tmp.join('&') + '}';
+  console.log('param:', result);
   return result;
 };
 
@@ -228,7 +228,7 @@ export const paramsToSortStr = (params?: URLSearchParams | FormData) => {
  */
 export const postParamToShaStr = (params?: object) => {
   if (!params) {
-    return "param={}";
+    return 'param={}';
   }
   const obj: any = {};
   // 过滤参数中的undefined
@@ -238,7 +238,7 @@ export const postParamToShaStr = (params?: object) => {
     }
   });
 
-  const result = "param=" + JSON.stringify(obj);
+  const result = 'param=' + JSON.stringify(obj);
   // console.log('param:', result);
   return result;
 };
@@ -255,7 +255,7 @@ export const signTmp = (param: string, timestamp: number, nonce: string) => {
   // console.log(
   //   'signTmp:' + param + '&timestamp=' + timestamp + '&nonce=' + nonce,
   // );
-  return param + "&x-daq-timestamp=" + timestamp + "&x-daq-nonce=" + nonce;
+  return param + '&x-daq-timestamp=' + timestamp + '&x-daq-nonce=' + nonce;
 };
 
 /**
@@ -265,7 +265,7 @@ export const signTmp = (param: string, timestamp: number, nonce: string) => {
  * @example  c23891c3ee516c0751898158396a5366dbde2311ed6104a486a600be3331432c
  * @returns 字符串
  */
-export const SHA = (str: string, userid = "null") => {
+export const SHA = (str: string, userid = 'null') => {
   const result = HmacSHA256(str, userid);
   // console.log("str:"+str)
   // console.log("userid:"+userid)
@@ -285,12 +285,12 @@ export const genHeader = (
   timestamp: number,
   nonce: string,
   signType: 0,
-  sign: string
+  sign: string,
 ) => {
   return {
-    "x-daq-timestamp": timestamp,
-    "x-daq-nonce": nonce,
-    "x-daq-sign-type": signType,
-    "x-daq-sign": sign,
+    'x-daq-timestamp': timestamp,
+    'x-daq-nonce': nonce,
+    'x-daq-sign-type': signType,
+    'x-daq-sign': sign,
   };
 };

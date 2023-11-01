@@ -1,16 +1,16 @@
-import { useEffect, useState, useContext } from "react";
-import _ from "lodash";
-import { Cascader } from "antd";
-import useNewRequest from "@/agul-hooks/useNewRequest";
+import useNewRequest from '@/agul-hooks/useNewRequest';
+import { Cascader } from 'antd';
+import _ from 'lodash';
+import { useEffect, useState } from 'react';
 
-const BoxStyle = { width: "100%", display: "flex" };
-const CascaderStyle = { flexGrow: "1" };
+const BoxStyle = { width: '100%', display: 'flex' };
+const CascaderStyle = { flexGrow: '1' };
 function getCascaderData(
   data: any,
   labelFields: string[],
   valueFields: string[],
   childrenField: string,
-  level: number = 0
+  level: number = 0,
 ) {
   _.forEach(labelFields, () => {
     for (let z = 0; z < data.length; z++) {
@@ -23,7 +23,7 @@ function getCascaderData(
           labelFields,
           valueFields,
           childrenField,
-          level + 1
+          level + 1,
         );
       } else {
         delete y[childrenField];
@@ -49,19 +49,19 @@ const CustomCascader = (props: any) => {
   useEffect(() => {
     setLoading(true);
     request(treeData?.url, {
-      method: "get",
+      method: 'get',
     })
       .then((res) => {
         setLoading(false);
-        const treeValue = _.get(res, treeData?.path || "data", []);
+        const treeValue = _.get(res, treeData?.path || 'data', []);
         if (treeValue) {
           setCascaderOptions(
             getCascaderData(
               treeValue,
               treeData?.labelFields,
               treeData?.valueFields,
-              treeData?.childrenField || "children"
-            )
+              treeData?.childrenField || 'children',
+            ),
           );
         }
       })
@@ -80,7 +80,7 @@ const CustomCascader = (props: any) => {
   return (
     <div id="agul-ui-newform-cascader-container" style={BoxStyle}>
       <Cascader
-        status={!_.isEmpty(getFieldError(id)) ? "error" : ""}
+        status={!_.isEmpty(getFieldError(id)) ? 'error' : ''}
         options={cascaderOptions}
         value={value}
         onChange={toChange as any}

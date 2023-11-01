@@ -1,27 +1,27 @@
+import ModalWithForm from '@/agul-components/ModalWithForm';
+import NewForm from '@/agul-components/NewForm';
+import NewTable from '@/agul-components/NewTable';
+import useHistory from '@/agul-hooks/useHistory';
+import useNewRequest from '@/agul-hooks/useNewRequest';
+import GloablLoading from '@/agul-methods/Loading';
+import Message from '@/agul-methods/Message';
+import { TableWithFormWProps } from '@/agul-types/newTable';
+import { isValidElement } from '@/agul-utils/utils';
+import { Button } from 'antd';
+import _ from 'lodash';
 import {
-  useState,
-  useRef,
-  useMemo,
-  CSSProperties,
-  createElement,
   ComponentType,
   ReactNode,
-} from "react";
-import _ from "lodash";
-import useHistory from "@/agul-hooks/useHistory";
-import { Button } from "antd";
-import Message from "@/agul-methods/Message";
-import NewForm from "@/agul-components/NewForm";
-import NewTable from "@/agul-components/NewTable";
-import ModalWithForm from "@/agul-components/ModalWithForm";
-import useNewRequest from "@/agul-hooks/useNewRequest";
-import { isValidElement } from "@/agul-utils/utils";
-import { TableWithFormWProps } from "@/agul-types/newTable";
-import GloablLoading from "@/agul-methods/Loading";
-import "./styles.less";
+  // CSSProperties,
+  createElement,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import './styles.less';
 
 const DefaultModalConfig = {
-  title: "",
+  title: '',
   open: false,
   onSuccess: () => {},
   onCancel: () => {},
@@ -32,9 +32,9 @@ const DefaultModalConfig = {
 };
 const TableWithForm: React.FC<TableWithFormWProps> = ({
   url,
-  method = "get",
-  path = "data",
-  pagePath = "pageable",
+  method = 'get',
+  path = 'data',
+  pagePath = 'pageable',
   columns = [],
   childTable,
   rowSelect = false,
@@ -90,18 +90,18 @@ const TableWithForm: React.FC<TableWithFormWProps> = ({
         .then((res: any) => {
           if (res instanceof FormData || !res?.errors || !res?.errors?.length) {
             if (!addBtn?.url) {
-              console.error("缺失新增url");
+              console.error('缺失新增url');
               return;
             }
             GloablLoading.show();
             request(addBtn?.url, {
-              method: addBtn?.method ? addBtn?.method : "post",
+              method: addBtn?.method ? addBtn?.method : 'post',
               data: res,
             })
               .then(() => {
                 GloablLoading.hide();
                 Message.success({
-                  title: "操作成功",
+                  title: '操作成功',
                 });
                 setModalConfig(DefaultModalConfig);
                 reset();
@@ -153,11 +153,11 @@ const TableWithForm: React.FC<TableWithFormWProps> = ({
           <Button onClick={() => toSubmit()}>查询</Button>
           {addBtn ? (
             <Button type="primary" onClick={toAdd} {...addBtn?.props}>
-              {addBtn?.text || "新建"}
+              {addBtn?.text || '新建'}
             </Button>
           ) : null}
           {_.map(extraBtns, (com) =>
-            typeof com === "function"
+            typeof com === 'function'
               ? createElement(com as ComponentType<any>, {
                   reset,
                   update: toSubmit,
@@ -165,7 +165,7 @@ const TableWithForm: React.FC<TableWithFormWProps> = ({
                 })
               : isValidElement(com) || _.isString(com) || _.isNumber(com)
               ? (com as ReactNode)
-              : null
+              : null,
           )}
         </div>
       </div>

@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { Select } from "antd";
-import { SelectMultipleMode } from "@/agul-utils/constant";
-import useNewRequest from "@/agul-hooks/useNewRequest";
-import _ from "lodash";
+import useNewRequest from '@/agul-hooks/useNewRequest';
+import { SelectMultipleMode } from '@/agul-utils/constant';
+import { Select } from 'antd';
+import _ from 'lodash';
+import { useState } from 'react';
 
-function getStr(data: any, fields: any[]) {
-  const obj: any = {};
-  _.forEach(fields, (item) => {
-    obj[item] = data[item];
-  });
-  return JSON.stringify(obj);
-}
+// function getStr(data: any, fields: any[]) {
+//   const obj: any = {};
+//   _.forEach(fields, (item) => {
+//     obj[item] = data[item];
+//   });
+//   return JSON.stringify(obj);
+// }
 const SearchInput = (props: any) => {
   const {
     onChange,
@@ -28,22 +28,22 @@ const SearchInput = (props: any) => {
     const params = treeData?.params ? treeData?.params : {};
     _.forEach(dependencies, (item, index) => {
       if (dependValues[index]) {
-        _.set(params, _.last(item.split(".")) as string, dependValues[index]);
+        _.set(params, _.last(item.split('.')) as string, dependValues[index]);
       }
     });
     _.set(
       params,
-      treeData?.keywordField ? treeData?.keywordField : "keyword",
-      keyword
+      treeData?.keywordField ? treeData?.keywordField : 'keyword',
+      keyword,
     );
     request(treeData?.url, {
-      method: "get",
+      method: 'get',
       params,
     })
       .then((res) => {
-        const data = _.map(_.get(res, treeData?.path || "data", []), (x) => ({
-          label: String(_.get(x, treeData?.labelField || "name")),
-          value: String(_.get(x, treeData?.valueField || "id")),
+        const data = _.map(_.get(res, treeData?.path || 'data', []), (x) => ({
+          label: String(_.get(x, treeData?.labelField || 'name')),
+          value: String(_.get(x, treeData?.valueField || 'id')),
         }));
         setDataSource(data);
       })
@@ -66,9 +66,9 @@ const SearchInput = (props: any) => {
   return (
     <Select
       mode={mode === SelectMultipleMode ? mode : undefined}
-      status={!_.isEmpty(getFieldError(dataPath)) ? "error" : ""}
+      status={!_.isEmpty(getFieldError(dataPath)) ? 'error' : ''}
       showSearch
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       value={value}
       placeholder={placeholder}
       defaultActiveFirstOption={false}

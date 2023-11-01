@@ -1,17 +1,17 @@
-import React, { forwardRef, CSSProperties } from "react";
-import { Modal } from "antd";
-import _ from "lodash";
-import NewForm from "@/agul-components/NewForm";
-import { ModalFormProps } from "@/agul-types/form";
+import { Modal } from 'antd';
+import React, { CSSProperties, forwardRef } from 'react';
+// import _ from "lodash";
+import NewForm from '@/agul-components/NewForm';
+import { ModalFormProps } from '@/agul-types/form';
 
 const modalContentStyle: CSSProperties = {
-  overflowY: "auto",
-  padding: "14px",
+  overflowY: 'auto',
+  padding: '14px',
 };
 
 const ModalWithForm: React.FC<ModalFormProps> = ({
-  width = "40vw",
-  height = "45vh",
+  width = '40vw',
+  height = '45vh',
   title,
   onSuccess,
   onCancel,

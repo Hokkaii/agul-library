@@ -1,8 +1,7 @@
-import _, { cloneDeep } from "lodash";
-import React from "react";
-import moment from "moment";
-import XLSX from "xlsx";
-import { FORMAT_DATETIME } from "./constant";
+import _, { cloneDeep } from 'lodash';
+import moment from 'moment';
+import React from 'react';
+import { FORMAT_DATETIME } from './constant';
 const utcOffset: number = 8;
 
 // 一般解法，维护一个数组，数组元素为key-value键值对对象，每次获取需要遍历数组
@@ -63,7 +62,7 @@ export const SessionStorage = {
 // UTC +8时区
 export const timeUtcOffect = (time: any): any => {
   if (!time) {
-    return "";
+    return '';
   }
   return moment(time).utcOffset(utcOffset);
 };
@@ -79,7 +78,7 @@ export const showTotal = (total: number) => `总共 ${total} 个项目`;
 export const clearParams = function (obj: any) {
   const copy = JSON.parse(JSON.stringify(obj));
   for (const key of Object.keys(copy)) {
-    if (copy[key] === null || copy[key] === "") {
+    if (copy[key] === null || copy[key] === '') {
       delete copy[key];
     }
   }
@@ -197,210 +196,15 @@ export const treeToArray = (tree: any[], array: any[]) => {
  */
 export const getDateTime = (
   param: string | number | Date | undefined,
-  format = FORMAT_DATETIME
+  format = FORMAT_DATETIME,
 ): string => {
   if (moment(param).isValid()) {
     return moment(timeUtcOffect(param)).format(format);
   }
-  return "";
+  return '';
 };
-const formmaterTostring = (value: any) => {
-  return value !== undefined ? value.toString() : "";
-};
-export const getSoaFileJSON = (_file: any): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    if (!_file) {
-      reject(new Error());
-    }
-    const array: any = {
-      serviceInterface_definition: [],
-      dataType_definition: [],
-      service_deployment: [],
-      sd_parameters: [],
-    };
-    const fields = [
-      "server_name",
-      "server_id",
-      "server_description",
-      "service_name_space",
-      "service_major_version",
-      "service_minor_version",
-      "interface_major_version",
-      "interface_minor_version",
-      "api_name",
-      "api_description",
-      "service_interface_element_type",
-      "service_Interface_element_id",
-      "event_group",
-      "L4_Protocol",
-      "parameter_name",
-      "parameter_description",
-      "parameter_direction",
-      "data_type_reference",
-      "remark",
-    ];
-    const server = [
-      "data_type_name",
-      "data_type_description",
-      "data_type_name_space",
-      "data_type_category",
-      "struct_union_member_position",
-      "struct_union_member_name",
-      "struct_union_member_description",
-      "struct_union_member_data_type_reference",
-      "array_element_data_type_reference",
-      "string_array_length_type",
-      "string_array_length_min",
-      "string_array_length_max",
-      "base_type",
-      "min_value_physical",
-      "max_value_physical",
-      "initial_value",
-      "invalid_value",
-      "unit",
-      "table_value",
-      "remark",
-    ];
-    const service = [
-      "paticipant",
-      "ipv_4",
-      "ip_subnet_mask",
-      "vlan_id",
-      "service_name",
-      "service_id",
-      "provided_service_instance_id",
-      "consumed_service_instance_id",
-      "l_4_protocol",
-      "port",
-      "eventgroups",
-      "multicast_ip_port",
-      "sd_parameter_configuration",
-    ];
-    const sd = [
-      "sd_parameters_name",
-      "type",
-      "initial_delay_min",
-      "initial_delay_max",
-      "repetitions_base_delay",
-      "reperirions_max",
-      "request_response_delay",
-      "cyclic_offer_delay",
-      "sd_port",
-      "sd_multicast_ip",
-      "ttl",
-    ];
-    const fileReader = new FileReader();
-    fileReader.onload = (ev) => {
-      try {
-        const data = ev?.target?.result;
-        const workbook = XLSX.read(data, {
-          type: "binary",
-        });
-        let SheetArray = [];
-        let privateArray = [
-          "ServiceInterface Definition",
-          "DataType Definition",
-          "Service Deployment",
-          "SD Parameters",
-        ];
-        SheetArray = workbook.SheetNames;
-        if (!SheetArray.toString().includes(privateArray.toString())) {
-          reject(new Error("文件数据格式不正确,请检查文件!"));
-        } else {
-          for (let sheet in workbook.Sheets) {
-            if (sheet === "ServiceInterface Definition") {
-              //循环读取每个文件
-              const sheetArray = XLSX.utils.sheet_to_json(
-                workbook.Sheets["ServiceInterface Definition"],
-                {
-                  header: fields,
-                }
-              );
-              const exceldata = sheetArray.splice(1);
-              exceldata.map((item: any) => {
-                item.service_major_version = formmaterTostring(
-                  item.service_major_version
-                );
-                item.service_minor_version = formmaterTostring(
-                  item.service_minor_version
-                );
-                item.interface_major_version = formmaterTostring(
-                  item.interface_major_version
-                );
-                item.interface_minor_version = formmaterTostring(
-                  item.interface_minor_version
-                );
-              });
-              array.serviceInterface_definition = exceldata;
-            }
-            if (sheet === "DataType Definition") {
-              //循环读取每个文件
-              const sheetDatatype = XLSX.utils.sheet_to_json(
-                workbook.Sheets["DataType Definition"],
-                {
-                  header: server,
-                }
-              );
-              const exceldata = sheetDatatype.splice(1);
-              array.dataType_definition = exceldata;
-            }
-
-            if (sheet === "Service Deployment") {
-              //循环读取每个文件
-              const sheetService = XLSX.utils.sheet_to_json(
-                workbook.Sheets["Service Deployment"],
-                {
-                  header: service,
-                }
-              );
-              const exceldata = sheetService.splice(1);
-              exceldata.map((item: any) => {
-                item.provided_service_instance_id = formmaterTostring(
-                  item.provided_service_instance_id
-                );
-                item.port = formmaterTostring(item.port);
-              });
-              array.service_deployment = exceldata;
-            }
-            if (sheet === "SD Parameters") {
-              //循环读取每个文件
-              const sheetSD = XLSX.utils.sheet_to_json(
-                workbook.Sheets["SD Parameters"],
-                {
-                  header: sd,
-                }
-              );
-              const exceldata = sheetSD.splice(1);
-              exceldata.map((item: any) => {
-                item.initial_delay_min = formmaterTostring(
-                  item.initial_delay_min
-                );
-                item.initial_delay_max = formmaterTostring(
-                  item.initial_delay_max
-                );
-                item.repetitions_base_delay = formmaterTostring(
-                  item.repetitions_base_delay
-                );
-                item.cyclic_offer_delay = formmaterTostring(
-                  item.cyclic_offer_delay
-                );
-                item.sd_port = formmaterTostring(item.sd_port);
-                item.reperirions_max = formmaterTostring(item.reperirions_max);
-                item.ttl = formmaterTostring(item.ttl);
-              });
-              array.sd_parameters = exceldata;
-            }
-          }
-          resolve(array);
-        }
-        // console.log(SheetArray, privateArray);
-      } catch (e) {
-        console.log(e);
-        reject(new Error("文件类型不正确！"));
-      }
-    };
-    fileReader.readAsBinaryString(_file);
-  });
+export const formmaterTostring = (value: any) => {
+  return value !== undefined ? value.toString() : '';
 };
 export function getTreeData(data: any, labelField: string, valueField: string) {
   return _.map(data, (item) => {
@@ -416,19 +220,20 @@ export function getTreeData(data: any, labelField: string, valueField: string) {
   });
 }
 export function getQuerys(e: string) {
-  if (!e) return "";
-  var t: any = {},
+  if (!e) return '';
+  let t: any = {},
     r = [],
-    n = "",
-    a = "";
+    n = '',
+    a = '';
   try {
-    var i: any = [];
+    let i: any = [];
     if (
-      (e.indexOf("?") >= 0 &&
-        (i = e.substring(e.indexOf("?") + 1, e.length).split("&")),
+      (e.indexOf('?') >= 0 &&
+        (i = e.substring(e.indexOf('?') + 1, e.length).split('&')),
       i.length > 0)
     )
-      for (var o in i) (n = (r = i[o].split("="))[0]), (a = r[1]), (t[n] = a);
+      // eslint-disable-next-line guard-for-in, @typescript-eslint/no-unused-expressions
+      for (let o in i) (n = (r = i[o].split('='))[0]), (a = r[1]), (t[n] = a);
   } catch (s) {
     t = {};
   }
@@ -438,26 +243,26 @@ export function getQuerys(e: string) {
 export function filterFormData(data: Record<string, any>) {
   // delete data["___agul_ui_time____"];
   _.forEach(data, (item, key) => {
-    if (_.isNil(item) || item === "" || _.isNaN(item)) {
+    if (_.isNil(item) || item === '' || _.isNaN(item)) {
       delete data[key];
     }
   });
 }
 
 export function isObject(data: any) {
-  return Object.prototype.toString.call(data) === "[object Object]";
+  return Object.prototype.toString.call(data) === '[object Object]';
 }
 export const isDOM =
-  typeof HTMLElement === "object"
+  typeof HTMLElement === 'object'
     ? function (obj: any) {
         return obj instanceof HTMLElement;
       }
     : function (obj: any) {
         return (
           obj &&
-          typeof obj === "object" &&
+          typeof obj === 'object' &&
           obj.nodeType === 1 &&
-          typeof obj.nodeName === "string"
+          typeof obj.nodeName === 'string'
         );
       };
 export function isValidElement(object: any) {

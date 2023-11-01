@@ -1,4 +1,4 @@
-import { CSSProperties, ComponentType } from "react";
+// import { CSSProperties, ComponentType } from "react";
 
 export type MarkdownEditorProps = {
   value: string;

@@ -1,27 +1,27 @@
-import React, { CSSProperties } from "react";
-import { Modal } from "antd";
-import _ from "lodash";
-import Detail from "@/agul-components/Detail";
-import { ModalDetailProps } from "@/agul-types/detail";
+import { Modal } from 'antd';
+import React, { CSSProperties } from 'react';
+// import _ from "lodash";
+import Detail from '@/agul-components/Detail';
+import { ModalDetailProps } from '@/agul-types/detail';
 
 const modalContentStyle: CSSProperties = {
-  height: "70vh",
-  overflowY: "auto",
-  padding: "14px",
+  height: '70vh',
+  overflowY: 'auto',
+  padding: '14px',
 };
 const ModalWithDetail: React.FC<ModalDetailProps> = ({
   title,
   onCancel,
   open,
   detail,
-  width = "40vw",
-  height = "45vh",
+  width = '40vw',
+  height = '45vh',
 }) => {
   return (
     <Modal
       width={width}
       open={open}
-      title={title || "详情"}
+      title={title || '详情'}
       onCancel={onCancel}
       destroyOnClose
       footer={null}

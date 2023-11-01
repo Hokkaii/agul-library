@@ -1,18 +1,18 @@
-import CodeMirror from "@uiw/react-codemirror";
-import { useEffect, useState } from "react";
-import _ from "lodash";
-import Loading from "@/agul-methods/Loading";
-import useNewRequest from "@/agul-hooks/useNewRequest";
-import { FileParseProps } from "@/agul-types/fileParse";
+import CodeMirror from '@uiw/react-codemirror';
+import { useEffect, useState } from 'react';
+// import _ from "lodash";
+import useNewRequest from '@/agul-hooks/useNewRequest';
+import Loading from '@/agul-methods/Loading';
+import { FileParseProps } from '@/agul-types/fileParse';
 
 const FileParse: React.FC<FileParseProps> = ({
   url,
   method,
   params = {},
-  dataSource = "",
-  width = "100%",
+  dataSource = '',
+  width = '100%',
   height,
-  autoUpdate = false,
+  // autoUpdate = false,
   ...otherProps
 }) => {
   const [data, setData] = useState<string>(dataSource);
@@ -20,10 +20,10 @@ const FileParse: React.FC<FileParseProps> = ({
   useEffect(() => {
     if (url) {
       const reqData: any = {
-        method: method || "get",
-        responseType: "text",
+        method: method || 'get',
+        responseType: 'text',
       };
-      if (method === "post") {
+      if (method === 'post') {
         reqData.data = params;
       } else {
         reqData.params = params;
